@@ -1,12 +1,11 @@
-#!/bin/python3
+#!/usr/bin/env python
+# checkPassword.py
+# This script checks if a password has been compromised in known data breaches
+# It uses the "Have I Been Pwned" API to check the password against a database of compromised passwords.
+
 
 import requests
 import hashlib
-import colorama
-from colorama import Fore, Style
-
-# Inicializar colorama para los colores de la terminal
-colorama.init()
 
 class CheckPasswordAPI:
     def __init__(self):
@@ -28,40 +27,28 @@ class CheckPasswordAPI:
             return 0
         
         except requests.exceptions.RequestException as e:
-            raise RuntimeError(f"Error al consultar API: {str(e)}")
+            raise RuntimeError(f"Error querying API: {str(e)}")
 
 class CheckPasswordCLI:
     def __init__(self):
         self.checker = CheckPasswordAPI()
 
     def run(self):
-        self.print_logo()
         while True:
-            password = input("\nIngrese la contraseña a verificar (o 'q' para salir): ")
+            password = input("\nEnter the password to check (or 'q' to quit): ")
             if password.lower() == 'q':
                 break
             
             try:
                 compromised_count = self.checker.check_password(password)
                 if compromised_count > 0:
-                    print(f"\n{Fore.RED}La contraseña '{password}' ha sido comprometida en {compromised_count} bases de datos conocidas.{Style.RESET_ALL}")
-                    print(f"Se recomienda cambiar esta contraseña.")
+                    print(f"\nThe password '{password}' has appeared in {compromised_count} data breaches.")
+                    print("It is recommended to change this password.")
                 else:
-                    print(f"\n{Fore.GREEN}La contraseña '{password}' no ha sido comprometida en bases de datos conocidas.{Style.RESET_ALL}")
-                    print(f"¡La contraseña es segura!")
+                    print(f"\nThe password '{password}' was not found in any known data breaches.")
+                    print("The password is safe!")
             except Exception as e:
-                print(f"\n{Fore.YELLOW}Error durante la verificación: {str(e)}{Style.RESET_ALL}")
-
-    def print_logo(self):
-        logo = """
-██████╗ ███████╗██████╗ ██╗   ██╗███████╗██████╗ 
-██╔══██╗██╔════╝██╔══██╗██║   ██║██╔════╝██╔══██╗
-██║  ██║█████╗  ██████╔╝██║   ██║█████╗  ██████╔╝
-██║  ██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══╝  ██╔══██╗
-██████╔╝███████╗██████╔╝ ╚████╔╝ ███████╗██║  ██║
-╚═════╝ ╚══════╝╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝
-        """
-        print(Fore.CYAN + logo + Style.RESET_ALL)
+                print(f"\nAn error occurred during verification: {str(e)}")
 
 def main():
     app = CheckPasswordCLI()
